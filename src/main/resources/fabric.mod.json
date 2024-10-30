@@ -5,7 +5,10 @@
   "name": "SMPUtils",
   "description": "",
   "authors": ["playgamesgo"],
-  "contact": {},
+  "contact": {
+    "sources": "https://github.com/playgamesgo/SMPUtils",
+    "issues": "https://github.com/playgamesgo/SMPUtils/issues"
+  },
   "license": "GPL-3.0",
   "icon": "assets/smputils/icon.png",
   "environment": "client",

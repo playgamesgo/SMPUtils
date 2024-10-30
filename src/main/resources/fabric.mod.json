@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "smputils",
+  "version": "${version}",
+  "name": "SMPUtils",
+  "description": "",
+  "authors": ["playgamesgo"],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/smputils/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.playgamesgo.smputils.SMPUtilsClient"
+    ]
+  },
+  "mixins": [
+    "smputils.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}",
+    "fzzy_config": ">=${fzzyConfigVersion}",
+    "mcef": ">=${mcef_version}"
+  }
+}

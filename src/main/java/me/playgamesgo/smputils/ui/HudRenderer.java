@@ -8,6 +8,8 @@ import me.playgamesgo.smputils.SMPUtilsClient;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
+import net.minecraft.client.util.InputUtil;
+import org.cef.misc.CefCursorType;
 
 public final class HudRenderer {
     private static MCEFBrowser browser;
@@ -21,8 +23,8 @@ public final class HudRenderer {
                 boolean transparent = true;
                 browser = MCEF.createBrowser(url, transparent);
                 browser.resize(HudRenderer.scaleX(Configs.config.MiniMapWidth.get()), HudRenderer.scaleY(Configs.config.MiniMapHeight.get()));
-                browser.setFocus(true);
-            } else if (SMPUtilsClient.renderMap && !SMPUtilsClient.forceHide){
+                browser.setCursorChangeListener(cursorID -> {});
+            } else if (SMPUtilsClient.renderMap && !SMPUtilsClient.forceHide) {
                 browser.loadURL(url);
                 browser.sendMouseMove(Configs.config.MiniMapWidth.get(), Configs.config.MiniMapHeight.get());
 

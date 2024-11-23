@@ -1,15 +1,17 @@
-package me.playgamesgo.smputils;
+package me.playgamesgo.smputils.ui;
 
 import com.cinemamod.mcef.MCEF;
 import com.cinemamod.mcef.MCEFBrowser;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.playgamesgo.smputils.utils.Configs;
+import me.playgamesgo.smputils.SMPUtilsClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
 import net.minecraft.text.Text;
 
-public class DynMap extends Screen {
+public final class DynMap extends Screen {
     private static final int BROWSER_DRAW_OFFSET = 20;
 
     private MCEFBrowser browser;
@@ -24,7 +26,7 @@ public class DynMap extends Screen {
     protected void init() {
         super.init();
         if (browser == null && minecraft.player != null) {
-            String url = Configs.config.mapUrl + minecraft.player.getWorld().getRegistryKey().getValue().toString().replace(":", "_") + ";flat;"
+            String url = Configs.config.MapUrl + minecraft.player.getWorld().getRegistryKey().getValue().toString().replace(":", "_") + ";flat;"
                     + minecraft.player.getBlockPos().getX() + ",64," + minecraft.player.getBlockPos().getZ() + ";3";
             boolean transparent = true;
             browser = MCEF.createBrowser(url, transparent);

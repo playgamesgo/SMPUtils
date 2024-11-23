@@ -3,11 +3,19 @@
   "id": "smputils",
   "version": "${version}",
   "name": "SMPUtils",
-  "description": "",
+  "description": "A lightweight client-side mod for SMP servers that enhances gameplay with practical features.",
   "authors": ["playgamesgo"],
   "contact": {
     "sources": "https://github.com/playgamesgo/SMPUtils",
     "issues": "https://github.com/playgamesgo/SMPUtils/issues"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/FJZk5QAHtU",
+        "modmenu.github_releases": "https://github.com/playgamesgo/SMPUtils/releases"
+      }
+    }
   },
   "license": "GPL-3.0",
   "icon": "assets/smputils/icon.png",

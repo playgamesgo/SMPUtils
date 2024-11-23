@@ -1,5 +1,6 @@
 {
   "key.smputils.webmap": "DynMap",
+  "key.smputils.forcehide": "Hide Minimap",
   "category.smputils.binds": "SMPUtils"
 }
 

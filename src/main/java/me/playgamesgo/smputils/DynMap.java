@@ -64,6 +64,7 @@ public class DynMap extends Screen {
     public void close() {
         browser.close();
         super.close();
+        SMPUtilsClient.renderMap = true;
     }
 
     @Override

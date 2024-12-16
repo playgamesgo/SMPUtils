@@ -8,8 +8,6 @@ import me.playgamesgo.smputils.SMPUtilsClient;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.InputUtil;
-import org.cef.misc.CefCursorType;
 
 public final class HudRenderer {
     private static MCEFBrowser browser;

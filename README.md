@@ -4,6 +4,7 @@ A lightweight client-side mod for SMP servers that enhances gameplay with practi
 ### Features:
 - Integrated DynMap menu in game
 - Minimap based on DynMap
+- Find blocks in nearby chests on Shift+Click in Litematica verifier
 - More in the future...
 
 ### Installation:

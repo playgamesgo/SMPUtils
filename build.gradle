@@ -23,6 +23,28 @@ repositories {
         name = "FzzyMaven"
         url = uri("https://maven.fzzyhmstrs.me/")
     }
+    maven {
+        name = "JackFredMaven"
+        url = uri("https://maven.jackf.red/releases/")
+    }
+    maven {
+        name = "Xander Snapshot Maven"
+        url = uri("https://maven.isxander.dev/snapshots/")
+    }
+    maven {
+        url = "https://maven.quiltmc.org/repository/release/"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
@@ -43,6 +65,15 @@ dependencies {
 
     compileOnly "org.projectlombok:lombok:1.18.32"
     annotationProcessor "org.projectlombok:lombok:1.18.32"
+
+    modImplementation "maven.modrinth:litematica:${project.litematica_version}"
+    modImplementation "maven.modrinth:malilib:${project.malilib_version}"
+    modImplementation "maven.modrinth:chest-tracker:${project.chest_tracker_version}"
+    modImplementation("red.jackf:whereisit:${project.whereIsItVersion}")
+    include("red.jackf:whereisit:${project.whereIsItVersion}")
+    modImplementation("dev.isxander:yet-another-config-lib:3.5.0+1.21-fabric") {
+        exclude group: "com.terraformersmc", module: "modmenu"
+    }
 }
 
 processResources {
@@ -51,6 +82,7 @@ processResources {
     inputs.property "loader_version", project.loader_version
     inputs.property "fzzyConfigVersion", project.fzzyConfigVersion
     inputs.property "mcef_version", project.mcef_version
+    inputs.property "litematica_version", project.litematica_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
@@ -58,7 +90,8 @@ processResources {
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version,
                 "fzzyConfigVersion": project.fzzyConfigVersion,
-                "mcef_version": project.mcef_version
+                "mcef_version": project.mcef_version,
+                "litematica_version": project.litematica_version
     }
 }
 

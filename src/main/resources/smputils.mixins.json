@@ -4,6 +4,7 @@
   "package": "me.playgamesgo.smputils.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "LitematicaVerifierMixin"
   ],
   "injectors": {
     "defaultRequire": 1

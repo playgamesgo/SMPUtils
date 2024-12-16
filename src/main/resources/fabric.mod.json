@@ -33,6 +33,7 @@
     "fabric": "*",
     "minecraft": "${minecraft_version}",
     "fzzy_config": ">=${fzzyConfigVersion}",
-    "mcef": ">=${mcef_version}"
+    "mcef": ">=${mcef_version}",
+    "litematica": ">=${litematica_version}"
   }
 }

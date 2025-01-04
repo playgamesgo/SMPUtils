@@ -1,11 +1,12 @@
 package me.playgamesgo.smputils.ui;
 
-import com.cinemamod.mcef.MCEF;
-import com.cinemamod.mcef.MCEFBrowser;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.playgamesgo.smputils.utils.Configs;
+import me.playgamesgo.smputils.utils.Config;
 import me.playgamesgo.smputils.SMPUtilsClient;
+import net.ccbluex.liquidbounce.mcef.MCEF;
+import net.ccbluex.liquidbounce.mcef.MCEFBrowser;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
@@ -24,12 +25,11 @@ public final class DynMap extends Screen {
 
     @Override
     protected void init() {
-        super.init();
         if (browser == null && minecraft.player != null) {
-            String url = Configs.config.MapUrl + minecraft.player.getWorld().getRegistryKey().getValue().toString().replace(":", "_") + ";flat;"
+            String url = Config.getMapUrl() + minecraft.player.getWorld().getRegistryKey().getValue().toString().replace(":", "_") + ";flat;"
                     + minecraft.player.getBlockPos().getX() + ",64," + minecraft.player.getBlockPos().getZ() + ";3";
             boolean transparent = true;
-            browser = MCEF.createBrowser(url, transparent);
+            browser = MCEF.INSTANCE.createBrowser(url, transparent, 30);
             resizeBrowser();
         }
     }
@@ -73,7 +73,7 @@ public final class DynMap extends Screen {
     public void render(DrawContext guiGraphics, int i, int j, float f) {
         super.render(guiGraphics, i, j, f);
         RenderSystem.disableDepthTest();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
         RenderSystem.setShaderTexture(0, browser.getRenderer().getTextureID());
         Tessellator t = Tessellator.getInstance();
         BufferBuilder buffer = t.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -113,7 +113,7 @@ public final class DynMap extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        browser.sendMouseWheel(mouseX(mouseX), mouseY(mouseY), verticalAmount, 0);
+        browser.sendMouseWheel(mouseX(mouseX), mouseY(mouseY), verticalAmount);
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 

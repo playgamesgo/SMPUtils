@@ -1,10 +1,10 @@
 package me.playgamesgo.smputils.ui;
 
+import com.cinemamod.mcef.MCEF;
+import com.cinemamod.mcef.MCEFBrowser;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.playgamesgo.smputils.utils.Config;
 import me.playgamesgo.smputils.SMPUtilsClient;
-import net.ccbluex.liquidbounce.mcef.MCEF;
-import net.ccbluex.liquidbounce.mcef.MCEFBrowser;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
@@ -20,7 +20,7 @@ public final class HudRenderer {
                     + minecraft.player.getBlockPos().getX() + ",64," + minecraft.player.getBlockPos().getZ() + ";3";
             if (browser == null && minecraft.player != null) {
                 boolean transparent = true;
-                browser = MCEF.INSTANCE.createBrowser(url, transparent, 30);
+                browser = MCEF.createBrowser(url, transparent);
                 browser.resize(HudRenderer.scaleX(Config.getMiniMapWidth()), HudRenderer.scaleY(Config.getMiniMapHeight()));
                 browser.setCursorChangeListener(cursorID -> {});
             } else if (SMPUtilsClient.renderMap && !Config.isHideMinimap()) {

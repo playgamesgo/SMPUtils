@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "me.playgamesgo.smputils.mixins.SMPUtilsMixinPlugin",
   "client": [
-    "LitematicaVerifierMixin",
-    "MinecraftClientMixin"
+    "LitematicaVerifierMixin"
   ],
   "injectors": {
     "defaultRequire": 1

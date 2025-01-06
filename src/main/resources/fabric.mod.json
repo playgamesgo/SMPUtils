@@ -31,12 +31,10 @@
   "mixins": [
     "smputils.mixins.json"
   ],
-  "accessWidener" : "smputils.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}",
-    "yet_another_config_lib_v3": ">=${yacl_version}",
-    "litematica": ">=${litematica_version}"
+    "yet_another_config_lib_v3": ">=${yacl_version}"
   }
 }

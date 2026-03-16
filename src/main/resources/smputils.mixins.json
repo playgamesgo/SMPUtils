@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "me.playgamesgo.smputils.mixins.SMPUtilsMixinPlugin",
   "client": [
-    "LitematicaVerifierMixin"
+    "ChatScreenMixin",
+    "LitematicaVerifierMixin",
+    "FlashbackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

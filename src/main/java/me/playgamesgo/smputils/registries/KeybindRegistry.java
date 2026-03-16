@@ -4,24 +4,26 @@ import lombok.Getter;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 
 public final class KeybindRegistry {
     public static HashMap<Keybinds, KeyBinding> keybinds = new HashMap<>();
+    public static final KeyBinding.Category CATEGORY = KeyBinding.Category.create(Identifier.of("smputils", "binds"));
 
     @Getter
     public enum Keybinds {
-        MAP("key.smputils.webmap", GLFW.GLFW_KEY_M, "category.smputils.binds"),
-        FORCE_HIDE("key.smputils.forcehide", GLFW.GLFW_KEY_H, "category.smputils.binds"),
-        CHANGE_POSITION("key.smputils.changeposition", GLFW.GLFW_KEY_O, "category.smputils.binds");
+        MAP("key.smputils.webmap", GLFW.GLFW_KEY_M, CATEGORY),
+        FORCE_HIDE("key.smputils.forcehide", GLFW.GLFW_KEY_H, CATEGORY),
+        CHANGE_POSITION("key.smputils.changeposition", GLFW.GLFW_KEY_O, CATEGORY);
 
         private final String name;
         private final int key;
-        private final String category;
+        private final KeyBinding.Category category;
 
-        Keybinds(String name, int key, String category) {
+        Keybinds(String name, int key, KeyBinding.Category category) {
             this.name = name;
             this.key = key;
             this.category = category;

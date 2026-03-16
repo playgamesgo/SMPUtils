@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class SMPUtilsMixinPlugin implements IMixinConfigPlugin {
+public final class SMPUtilsMixinPlugin implements IMixinConfigPlugin {
     private static final Map<String, Supplier<Boolean>> CONDITIONS = ImmutableMap.of(
             "me.playgamesgo.smputils.mixins.LitematicaVerifierMixin", () ->
-                    FabricLoader.getInstance().isModLoaded("litematica") && FabricLoader.getInstance().isModLoaded("whereisit")
+                    FabricLoader.getInstance().isModLoaded("litematica") && FabricLoader.getInstance().isModLoaded("whereisit"),
+            "me.playgamesgo.smputils.mixins.FlashbackMixin", () ->
+                    FabricLoader.getInstance().isModLoaded("flashback")
     );
 
     @Override

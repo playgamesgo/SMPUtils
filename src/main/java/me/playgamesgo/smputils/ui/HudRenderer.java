@@ -2,64 +2,116 @@ package me.playgamesgo.smputils.ui;
 
 import com.cinemamod.mcef.MCEF;
 import com.cinemamod.mcef.MCEFBrowser;
-import com.mojang.blaze3d.systems.RenderSystem;
-import me.playgamesgo.smputils.utils.Config;
+import lombok.Getter;
+import lombok.Setter;
 import me.playgamesgo.smputils.SMPUtilsClient;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import me.playgamesgo.smputils.utils.Config;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgramKeys;
-import net.minecraft.client.render.*;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.util.Identifier;
+
+import java.util.concurrent.CompletableFuture;
 
 public final class HudRenderer {
-    private static MCEFBrowser browser;
+    @Getter @Setter private static MCEFBrowser browser;
     private static final MinecraftClient minecraft = MinecraftClient.getInstance();
 
+    public static int[] getMinimapBounds() {
+        int width = Config.getMiniMapWidth();
+        int height = Config.getMiniMapHeight();
+
+        int x1 = 0;
+        int y1 = 0;
+        switch (Config.getMiniMapPos()) {
+            case TOP_RIGHT:
+                x1 = minecraft.getWindow().getScaledWidth() - width;
+                break;
+            case BOTTOM_LEFT:
+                y1 = minecraft.getWindow().getScaledHeight() - height;
+                break;
+            case BOTTOM_RIGHT:
+                x1 = minecraft.getWindow().getScaledWidth() - width;
+                y1 = minecraft.getWindow().getScaledHeight() - height;
+                break;
+            default: // TOP_LEFT
+                break;
+        }
+
+        return new int[]{x1, y1, width, height};
+    }
+
+    public static boolean isPointInMinimap(double x, double y) {
+        int[] bounds = getMinimapBounds();
+        int x1 = bounds[0];
+        int y1 = bounds[1];
+        int width = bounds[2];
+        int height = bounds[3];
+        return x >= x1 && x < x1 + width && y >= y1 && y < y1 + height;
+    }
+
+    public static int minimapMouseX(double x) {
+        int[] bounds = getMinimapBounds();
+        return scaleX(x - bounds[0]);
+    }
+
+    public static int minimapMouseY(double y) {
+        int[] bounds = getMinimapBounds();
+        return scaleY(y - bounds[1]);
+    }
+
     public static void render() {
-        HudRenderCallback.EVENT.register((context, tickDeltaManager) -> {
-            String url = Config.getMapUrl() + minecraft.player.getWorld().getRegistryKey().getValue().toString().replace(":", "_") + ";flat;"
-                    + minecraft.player.getBlockPos().getX() + ",64," + minecraft.player.getBlockPos().getZ() + ";3";
-            if (browser == null && minecraft.player != null) {
+        HudElementRegistry.attachElementBefore(VanillaHudElements.STATUS_EFFECTS, Identifier.of("smputils", "minimap"), (context, tickCounter) -> {
+            if (minecraft.player == null) return;
+
+            String world = minecraft.player.getEntityWorld().getRegistryKey().getValue().getPath();
+            world = Config.getWorldAliases().getOrDefault(world, world);
+            String url = Config.getMapUrl()
+                    .replace("{world}", world)
+                    .replace("{x}", minecraft.player.getBlockPos().getX() + "")
+                    .replace("{y}", minecraft.player.getBlockPos().getY() + "")
+                    .replace("{z}", minecraft.player.getBlockPos().getZ() + "")
+                    .replace("{scale}", Config.getMiniMapScale() + "")
+                    .replace("{view_index}", Config.getMapView().ordinal() + "")
+                    .replace("{view}", Config.getMapView().getValue());
+            if (browser == null) {
                 boolean transparent = true;
                 browser = MCEF.createBrowser(url, transparent);
                 browser.resize(HudRenderer.scaleX(Config.getMiniMapWidth()), HudRenderer.scaleY(Config.getMiniMapHeight()));
                 browser.setCursorChangeListener(cursorID -> {});
+
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        Thread.sleep(1000);
+                        MinecraftClient.getInstance().executeSync(() -> sendCss(true));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
             } else if (SMPUtilsClient.renderMap && !Config.isHideMinimap()) {
                 browser.loadURL(url);
                 browser.sendMouseMove(Config.getMiniMapWidth(), Config.getMiniMapHeight());
 
-                RenderSystem.disableDepthTest();
-                RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
-                RenderSystem.setShaderTexture(0, browser.getRenderer().getTextureID());
-                Tessellator t = Tessellator.getInstance();
-                BufferBuilder buffer = t.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+                int[] bounds = getMinimapBounds();
+                int x1 = bounds[0];
+                int y1 = bounds[1];
+                int width = bounds[2];
+                int height = bounds[3];
 
-                int x1 = 0, y1 = 0, x2 = Config.getMiniMapWidth(), y2 = Config.getMiniMapHeight();
-                switch (Config.getMiniMapPos()) {
-                    case TOP_RIGHT:
-                        x1 = minecraft.getWindow().getScaledWidth() - Config.getMiniMapWidth();
-                        x2 = minecraft.getWindow().getScaledWidth();
-                        break;
-                    case BOTTOM_LEFT:
-                        y1 = minecraft.getWindow().getScaledHeight() - Config.getMiniMapHeight();
-                        y2 = minecraft.getWindow().getScaledHeight();
-                        break;
-                    case BOTTOM_RIGHT:
-                        x1 = minecraft.getWindow().getScaledWidth() - Config.getMiniMapWidth();
-                        x2 = minecraft.getWindow().getScaledWidth();
-                        y1 = minecraft.getWindow().getScaledHeight() - Config.getMiniMapHeight();
-                        y2 = minecraft.getWindow().getScaledHeight();
-                        break;
-                    default: // TOP_LEFT
-                        break;
-                }
+                Identifier textureLocation = browser.getTextureIdentifier();
+                if (textureLocation == null) return;
 
-                buffer.vertex(x1, y2, 0).texture(0.0f, 1.0f).color(255, 255, 255, 255);
-                buffer.vertex(x2, y2, 0).texture(1.0f, 1.0f).color(255, 255, 255, 255);
-                buffer.vertex(x2, y1, 0).texture(1.0f, 0.0f).color(255, 255, 255, 255);
-                buffer.vertex(x1, y1, 0).texture(0.0f, 0.0f).color(255, 255, 255, 255);
-                BufferRenderer.drawWithGlobalProgram(buffer.end());
-                RenderSystem.setShaderTexture(0, 0);
-                RenderSystem.enableDepthTest();
+                context.drawTexture(
+                        RenderPipelines.GUI_TEXTURED,
+                        textureLocation,
+                        x1, y1,
+                        0, 0,
+                        width, height,
+                        width, height
+                );
+
             }
         });
     }
@@ -76,5 +128,50 @@ public final class HudRenderer {
 
     public static int scaleY(double y) {
         return (int) (y * minecraft.getWindow().getScaleFactor());
+    }
+
+    public static void sendCss(boolean hideMenuButton) {
+        if (browser != null) {
+            String css = """
+                    #zoom-buttons { display: none !important; }
+                    .compass { display: none !important; }
+                    .control-bar { background-color: transparent !important; }
+                    """;
+            if (!Config.isShowCoordinates()) {
+                css += """
+                        .position-input { display: none !important; }
+                        """;
+            }
+            if (hideMenuButton) {
+                css += """
+                        .menu-button { display: none !important; }
+                        """;
+            }
+
+
+            injectCss(browser, css);
+        }
+    }
+
+    private static void injectCss(MCEFBrowser browser, String css) {
+        String escapedCss = css
+                .replace("\\", "\\\\")
+                .replace("`", "\\`")
+                .replace("${", "\\${");
+
+        browser.executeJavaScript("""
+                (() => {
+                    const id = 'smputils-custom-css';
+                    let style = document.getElementById(id);
+                
+                    if (!style) {
+                        style = document.createElement('style');
+                        style.id = id;
+                        document.head.appendChild(style);
+                    }
+                
+                    style.textContent = `%s`;
+                })();
+                """.formatted(escapedCss), "", 0);
     }
 }

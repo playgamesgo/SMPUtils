@@ -2,9 +2,10 @@
 A lightweight client-side mod for SMP servers that enhances gameplay with practical features.
 
 ### Features:
-- Integrated DynMap menu in game
-- Minimap based on DynMap
+- Integrated BlueMap menu in game
+- Minimap based on BlueMap
 - Find blocks in nearby chests on Shift+Click in Litematica verifier
+- Flashback auto recording server blacklist
 - More in the future...
 
 ### Installation:
@@ -16,7 +17,6 @@ A lightweight client-side mod for SMP servers that enhances gameplay with practi
 Contributions are welcome! Here's how you can help:
 - Ideas: Share your suggestions for features or improvements. 
 - Code Contributions: Fork the repository, implement your changes, and submit a pull request.
-If you create a fork or derivative of the mod, ensure you comply with the license terms.
 
 ### Usage:
 Feel free to include this mod in your modpacks. No attribution is required, but a shoutout is always appreciated!

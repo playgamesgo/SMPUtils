@@ -4,7 +4,9 @@
   "version": "${version}",
   "name": "SMPUtils",
   "description": "A lightweight client-side mod for SMP servers that enhances gameplay with practical features.",
-  "authors": ["playgamesgo"],
+  "authors": [
+    "playgamesgo"
+  ],
   "contact": {
     "sources": "https://github.com/playgamesgo/SMPUtils",
     "issues": "https://github.com/playgamesgo/SMPUtils/issues"
@@ -36,5 +38,9 @@
     "fabric": "*",
     "minecraft": "${minecraft_version}",
     "yet_another_config_lib_v3": ">=${yacl_version}"
+  },
+  "suggests": {
+    "litematica": "*",
+    "flashback": "*"
   }
 }

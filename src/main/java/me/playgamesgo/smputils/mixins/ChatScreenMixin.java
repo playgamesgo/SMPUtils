@@ -4,12 +4,13 @@ import com.cinemamod.mcef.MCEFBrowser;
 import me.playgamesgo.smputils.ui.HudRenderer;
 import me.playgamesgo.smputils.utils.Config;
 import me.playgamesgo.smputils.SMPUtilsClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,7 +25,7 @@ public abstract class ChatScreenMixin extends Screen {
     @Unique private boolean smputils$browserMouseCaptured;
     @Unique private int smputils$capturedButton = -1;
 
-    protected ChatScreenMixin(Text title) {
+    protected ChatScreenMixin(Component title) {
         super(title);
     }
 
@@ -33,18 +34,18 @@ public abstract class ChatScreenMixin extends Screen {
         return SMPUtilsClient.renderMap && !Config.isHideMinimap() && HudRenderer.getBrowser() != null;
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void smputils$init(String text, boolean draft, CallbackInfo ci) {
+    @Inject(method = "<init>(Ljava/lang/String;ZZ)V", at = @At("RETURN"))
+    private void smputils$init(String initial, boolean isDraft, boolean closeOnSubmit, CallbackInfo ci) {
         HudRenderer.sendCss(false);
     }
 
-    @Inject(method = "close", at = @At("HEAD"))
+    @Inject(method = "onClose", at = @At("HEAD"))
     private void smputils$close(CallbackInfo ci) {
         HudRenderer.sendCss(true);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void smputils$browserMouseClicked(Click click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
+    private void smputils$browserMouseClicked(MouseButtonEvent click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
         MCEFBrowser browser = HudRenderer.getBrowser();
         smputils$lastMouseX = click.x();
         smputils$lastMouseY = click.y();
@@ -60,7 +61,7 @@ public abstract class ChatScreenMixin extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         smputils$lastMouseX = click.x();
         smputils$lastMouseY = click.y();
 
@@ -103,7 +104,7 @@ public abstract class ChatScreenMixin extends Screen {
     }
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-    private void smputils$browserKeyPressed(KeyInput input, CallbackInfoReturnable<Boolean> cir) {
+    private void smputils$browserKeyPressed(KeyEvent input, CallbackInfoReturnable<Boolean> cir) {
         MCEFBrowser browser = HudRenderer.getBrowser();
         if (browser != null && SMPUtilsClient.renderMap && !Config.isHideMinimap() && HudRenderer.isPointInMinimap(smputils$lastMouseX, smputils$lastMouseY)) {
             browser.sendKeyPress(input.key(), input.scancode(), input.modifiers());
@@ -114,7 +115,7 @@ public abstract class ChatScreenMixin extends Screen {
     }
 
     @Override
-    public boolean keyReleased(KeyInput input) {
+    public boolean keyReleased(@NonNull KeyEvent input) {
         MCEFBrowser browser = HudRenderer.getBrowser();
         if (browser != null && SMPUtilsClient.renderMap && !Config.isHideMinimap() && HudRenderer.isPointInMinimap(smputils$lastMouseX, smputils$lastMouseY)) {
             browser.sendKeyRelease(input.key(), input.scancode(), input.modifiers());
@@ -124,11 +125,11 @@ public abstract class ChatScreenMixin extends Screen {
     }
 
     @Override
-    public boolean charTyped(CharInput input) {
+    public boolean charTyped(CharacterEvent input) {
         if (input.codepoint() == (char) 0) return false;
         MCEFBrowser browser = HudRenderer.getBrowser();
         if (browser != null && SMPUtilsClient.renderMap && !Config.isHideMinimap() && HudRenderer.isPointInMinimap(smputils$lastMouseX, smputils$lastMouseY)) {
-            browser.sendKeyTyped((char) input.codepoint(), input.modifiers());
+            browser.sendKeyTyped((char) input.codepoint(), 0);
             browser.setFocus(true);
         }
         return super.charTyped(input);

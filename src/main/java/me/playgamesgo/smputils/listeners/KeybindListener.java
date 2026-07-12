@@ -5,9 +5,9 @@ import me.playgamesgo.smputils.registries.KeybindRegistry;
 import me.playgamesgo.smputils.ui.WebMap;
 import me.playgamesgo.smputils.utils.Config;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,13 +19,11 @@ public final class KeybindListener {
         initializeKeybindActions();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (MinecraftClient.getInstance() == null || MinecraftClient.getInstance().player == null) {
-                return;
-            }
+            if (client.player == null) return;
 
             keybindActions.forEach((keybind, action) -> {
-                while (KeybindRegistry.keybinds.get(keybind).wasPressed()) {
-                    action.execute(MinecraftClient.getInstance().player);
+                while (KeybindRegistry.keybinds.get(keybind).consumeClick()) {
+                    action.execute(Minecraft.getInstance().player);
                 }
             });
         });
@@ -33,9 +31,9 @@ public final class KeybindListener {
 
     private static void initializeKeybindActions() {
         keybindActions.put(KeybindRegistry.Keybinds.MAP, player -> {
-            if (!(MinecraftClient.getInstance().currentScreen instanceof WebMap)) {
+            if (!(Minecraft.getInstance().gui.screen() instanceof WebMap)) {
                 SMPUtilsClient.renderMap = false;
-                MinecraftClient.getInstance().setScreen(new WebMap(Text.of("WebMap")));
+                Minecraft.getInstance().gui.setScreen(new WebMap(Component.literal("WebMap")));
             }
         });
 
@@ -53,6 +51,6 @@ public final class KeybindListener {
 
     @FunctionalInterface
     private interface KeybindAction {
-        void execute(PlayerEntity player);
+        void execute(Player player);
     }
 }

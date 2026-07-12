@@ -6,14 +6,14 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import lombok.Getter;
 import me.playgamesgo.smputils.ui.HudRenderer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Map;
 
 public final class Config {
     private static final ConfigClassHandler<Config> HANDLER = ConfigClassHandler.createBuilder(Config.class)
-            .id(Identifier.of("smputils", "config"))
+            .id(Identifier.fromNamespaceAndPath("smputils", "config"))
                     .serializer(config -> GsonConfigSerializerBuilder.create(config)
                             .setPath(FabricLoader.getInstance().getConfigDir().resolve("smputils.json5"))
                             .setJson5(true)
@@ -74,7 +74,7 @@ public final class Config {
     private static Map<String, String> WorldAliases = Map.of(
             "overworld", "world",
             "the_nether", "world_the_nether",
-            "end", "world_end"
+            "the_end", "world_the_end"
     );
 
     @Getter

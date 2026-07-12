@@ -1,17 +1,17 @@
 package me.playgamesgo.smputils.registries;
 
 import lombok.Getter;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 
 public final class KeybindRegistry {
-    public static HashMap<Keybinds, KeyBinding> keybinds = new HashMap<>();
-    public static final KeyBinding.Category CATEGORY = KeyBinding.Category.create(Identifier.of("smputils", "binds"));
+    public static HashMap<Keybinds, KeyMapping> keybinds = new HashMap<>();
+    public static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("smputils", "binds"));
 
     @Getter
     public enum Keybinds {
@@ -21,9 +21,9 @@ public final class KeybindRegistry {
 
         private final String name;
         private final int key;
-        private final KeyBinding.Category category;
+        private final KeyMapping.Category category;
 
-        Keybinds(String name, int key, KeyBinding.Category category) {
+        Keybinds(String name, int key, KeyMapping.Category category) {
             this.name = name;
             this.key = key;
             this.category = category;
@@ -37,8 +37,8 @@ public final class KeybindRegistry {
     }
 
     private static void register(Keybinds keybind) {
-        KeyBinding keyBinding = new KeyBinding(keybind.name, InputUtil.Type.KEYSYM, keybind.key, keybind.category);
+        KeyMapping keyBinding = new KeyMapping(keybind.name, InputConstants.Type.KEYSYM, keybind.key, keybind.category);
         keybinds.put(keybind, keyBinding);
-        KeyBindingHelper.registerKeyBinding(keyBinding);
+        KeyMappingHelper.registerKeyMapping(keyBinding);
     }
 }

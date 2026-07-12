@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -12,7 +12,6 @@ base {
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
     maven {
         url 'https://maven.wispforest.io/releases/'
     }
@@ -26,7 +25,7 @@ repositories {
     }
     maven {
         name = "Xander Snapshot Maven"
-        url = uri("https://maven.isxander.dev/snapshots/")
+        url = uri("https://maven.isxander.dev/releases/")
     }
     maven {
         url = "https://maven.quiltmc.org/repository/release/"
@@ -57,25 +56,24 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation "de.keksuccino:mcef-fabric:${project.mcef_version}"
+    implementation "maven.modrinth:mcef-keksuccino:${project.mcef_version}"
 
-    compileOnly "org.projectlombok:lombok:1.18.32"
-    annotationProcessor "org.projectlombok:lombok:1.18.32"
+    compileOnly "org.projectlombok:lombok:1.18.46"
+    annotationProcessor "org.projectlombok:lombok:1.18.46"
 
-    modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modCompileOnly "maven.modrinth:litematica:${project.litematica_version}"
-    modCompileOnly "maven.modrinth:malilib:${project.malilib_version}"
-    modCompileOnly "maven.modrinth:where-is-it-port:${project.whereIsItVersion}"
+    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+    compileOnly "maven.modrinth:litematica:${project.litematica_version}"
+    compileOnly "maven.modrinth:malilib:${project.malilib_version}"
+    compileOnly "maven.modrinth:where-is-it-port:${project.whereIsItVersion}"
     include "maven.modrinth:where-is-it-port:${project.whereIsItVersion}"
-    modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}") {
+    implementation("dev.isxander:yet-another-config-lib:${project.yacl_version}") {
         exclude group: "com.terraformersmc", module: "modmenu"
     }
-    modCompileOnly "maven.modrinth:flashback:${project.flashback_version}"
+    compileOnly "maven.modrinth:flashback:${project.flashback_version}"
 }
 
 processResources {
@@ -97,7 +95,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly

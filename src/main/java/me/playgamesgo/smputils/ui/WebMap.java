@@ -4,37 +4,38 @@ import com.cinemamod.mcef.MCEF;
 import com.cinemamod.mcef.MCEFBrowser;
 import me.playgamesgo.smputils.utils.Config;
 import me.playgamesgo.smputils.SMPUtilsClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 public final class WebMap extends Screen {
     private static final int BROWSER_DRAW_OFFSET = 20;
 
     private MCEFBrowser browser;
 
-    private final MinecraftClient minecraft = MinecraftClient.getInstance();
+    private final Minecraft minecraft = Minecraft.getInstance();
 
-    public WebMap(Text title) {
+    public WebMap(Component title) {
         super(title);
     }
 
     @Override
     protected void init() {
         if (browser == null && minecraft.player != null) {
-            String world = minecraft.player.getEntityWorld().getRegistryKey().getValue().getPath();
+            String world = minecraft.player.level().dimension().identifier().getPath();
             world = Config.getWorldAliases().getOrDefault(world, world);
             String url = Config.getMapUrl()
                     .replace("{world}", world)
-                    .replace("{x}", minecraft.player.getBlockPos().getX() + "")
-                    .replace("{y}", minecraft.player.getBlockPos().getY() + "")
-                    .replace("{z}", minecraft.player.getBlockPos().getZ() + "")
+                    .replace("{x}", minecraft.player.blockPosition().getX() + "")
+                    .replace("{y}", minecraft.player.blockPosition().getY() + "")
+                    .replace("{z}", minecraft.player.blockPosition().getZ() + "")
                     .replace("{scale}", Config.getMiniMapScale() + "")
                     .replace("{view_index}", Config.getMapView().ordinal() + "")
                     .replace("{view}", Config.getMapView().getValue());
@@ -45,19 +46,19 @@ public final class WebMap extends Screen {
     }
 
     private int mouseX(double x) {
-        return (int) ((x - BROWSER_DRAW_OFFSET) * minecraft.getWindow().getScaleFactor());
+        return (int) ((x - BROWSER_DRAW_OFFSET) * minecraft.getWindow().getGuiScale());
     }
 
     private int mouseY(double y) {
-        return (int) ((y - BROWSER_DRAW_OFFSET) * minecraft.getWindow().getScaleFactor());
+        return (int) ((y - BROWSER_DRAW_OFFSET) * minecraft.getWindow().getGuiScale());
     }
 
     private int scaleX(double x) {
-        return (int) ((x - BROWSER_DRAW_OFFSET * 2) * minecraft.getWindow().getScaleFactor());
+        return (int) ((x - BROWSER_DRAW_OFFSET * 2) * minecraft.getWindow().getGuiScale());
     }
 
     private int scaleY(double y) {
-        return (int) ((y - BROWSER_DRAW_OFFSET * 2) * minecraft.getWindow().getScaleFactor());
+        return (int) ((y - BROWSER_DRAW_OFFSET * 2) * minecraft.getWindow().getGuiScale());
     }
 
     private void resizeBrowser() {
@@ -73,16 +74,16 @@ public final class WebMap extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         browser.close();
-        super.close();
+        super.onClose();
         SMPUtilsClient.renderMap = true;
         HudRenderer.sendCss(true);
     }
 
     @Override
-    public void render(DrawContext context, int i, int j, float f) {
-        super.render(context, i, j, f);
+    public void extractRenderState(@NonNull GuiGraphicsExtractor context, int i, int j, float f) {
+        super.extractRenderState(context, i, j, f);
         if (browser == null) return;
 
         Identifier textureLocation = browser.getTextureIdentifier();
@@ -92,7 +93,7 @@ public final class WebMap extends Screen {
         int drawHeight = height - BROWSER_DRAW_OFFSET * 2;
         if (drawWidth <= 0 || drawHeight <= 0) return;
 
-        context.drawTexture(
+        context.blit(
                 RenderPipelines.GUI_TEXTURED,
                 textureLocation,
                 BROWSER_DRAW_OFFSET, BROWSER_DRAW_OFFSET,
@@ -103,14 +104,14 @@ public final class WebMap extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         browser.sendMousePress(mouseX(click.x()), mouseY(click.y()), click.button());
         browser.setFocus(true);
         return super.mouseClicked(click, doubled);
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         browser.sendMouseRelease(mouseX(click.x()), mouseY(click.y()), click.button());
         browser.setFocus(true);
         return super.mouseReleased(click);
@@ -123,7 +124,7 @@ public final class WebMap extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+    public boolean mouseDragged(@NonNull MouseButtonEvent click, double offsetX, double offsetY) {
         return super.mouseDragged(click, offsetX, offsetY);
     }
 
@@ -134,23 +135,23 @@ public final class WebMap extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         browser.sendKeyPress(input.key(), input.scancode(), input.modifiers());
         browser.setFocus(true);
         return super.keyPressed(input);
     }
 
     @Override
-    public boolean keyReleased(KeyInput input) {
+    public boolean keyReleased(KeyEvent input) {
         browser.sendKeyRelease(input.key(), input.scancode(), input.modifiers());
         browser.setFocus(true);
         return super.keyReleased(input);
     }
 
     @Override
-    public boolean charTyped(CharInput input) {
+    public boolean charTyped(CharacterEvent input) {
         if (input.codepoint() == (char) 0) return false;
-        browser.sendKeyTyped((char) input.codepoint(), input.modifiers());
+        browser.sendKeyTyped((char) input.codepoint(), 0);
         browser.setFocus(true);
         return super.charTyped(input);
     }

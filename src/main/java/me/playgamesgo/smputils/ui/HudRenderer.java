@@ -8,15 +8,15 @@ import me.playgamesgo.smputils.SMPUtilsClient;
 import me.playgamesgo.smputils.utils.Config;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 import java.util.concurrent.CompletableFuture;
 
 public final class HudRenderer {
     @Getter @Setter private static MCEFBrowser browser;
-    private static final MinecraftClient minecraft = MinecraftClient.getInstance();
+    private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static int[] getMinimapBounds() {
         int width = Config.getMiniMapWidth();
@@ -26,14 +26,14 @@ public final class HudRenderer {
         int y1 = 0;
         switch (Config.getMiniMapPos()) {
             case TOP_RIGHT:
-                x1 = minecraft.getWindow().getScaledWidth() - width;
+                x1 = minecraft.getWindow().getGuiScaledWidth() - width;
                 break;
             case BOTTOM_LEFT:
-                y1 = minecraft.getWindow().getScaledHeight() - height;
+                y1 = minecraft.getWindow().getGuiScaledHeight() - height;
                 break;
             case BOTTOM_RIGHT:
-                x1 = minecraft.getWindow().getScaledWidth() - width;
-                y1 = minecraft.getWindow().getScaledHeight() - height;
+                x1 = minecraft.getWindow().getGuiScaledWidth() - width;
+                y1 = minecraft.getWindow().getGuiScaledHeight() - height;
                 break;
             default: // TOP_LEFT
                 break;
@@ -62,16 +62,16 @@ public final class HudRenderer {
     }
 
     public static void render() {
-        HudElementRegistry.attachElementBefore(VanillaHudElements.STATUS_EFFECTS, Identifier.of("smputils", "minimap"), (context, tickCounter) -> {
+        HudElementRegistry.attachElementBefore(VanillaHudElements.MOB_EFFECTS, Identifier.fromNamespaceAndPath("smputils", "minimap"), (context, tickCounter) -> {
             if (minecraft.player == null) return;
 
-            String world = minecraft.player.getEntityWorld().getRegistryKey().getValue().getPath();
+            String world = minecraft.player.level().dimension().identifier().getPath();
             world = Config.getWorldAliases().getOrDefault(world, world);
             String url = Config.getMapUrl()
                     .replace("{world}", world)
-                    .replace("{x}", minecraft.player.getBlockPos().getX() + "")
-                    .replace("{y}", minecraft.player.getBlockPos().getY() + "")
-                    .replace("{z}", minecraft.player.getBlockPos().getZ() + "")
+                    .replace("{x}", minecraft.player.blockPosition().getX() + "")
+                    .replace("{y}", minecraft.player.blockPosition().getY() + "")
+                    .replace("{z}", minecraft.player.blockPosition().getZ() + "")
                     .replace("{scale}", Config.getMiniMapScale() + "")
                     .replace("{view_index}", Config.getMapView().ordinal() + "")
                     .replace("{view}", Config.getMapView().getValue());
@@ -84,7 +84,7 @@ public final class HudRenderer {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(1000);
-                        MinecraftClient.getInstance().executeSync(() -> sendCss(true));
+                        Minecraft.getInstance().executeBlocking(() -> sendCss(true));
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -103,7 +103,7 @@ public final class HudRenderer {
                 Identifier textureLocation = browser.getTextureIdentifier();
                 if (textureLocation == null) return;
 
-                context.drawTexture(
+                context.blit(
                         RenderPipelines.GUI_TEXTURED,
                         textureLocation,
                         x1, y1,
@@ -123,11 +123,11 @@ public final class HudRenderer {
     }
 
     public static int scaleX(double x) {
-        return (int) (x * minecraft.getWindow().getScaleFactor());
+        return (int) (x * minecraft.getWindow().getGuiScale());
     }
 
     public static int scaleY(double y) {
-        return (int) (y * minecraft.getWindow().getScaleFactor());
+        return (int) (y * minecraft.getWindow().getGuiScale());
     }
 
     public static void sendCss(boolean hideMenuButton) {
